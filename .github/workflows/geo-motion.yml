@@ -1,4 +1,4 @@
-name: Geo Motion — documentary prototype
+name: Geo Motion — documentary engine v2
 on:
   push:
     branches: [main]
@@ -8,14 +8,14 @@ on:
       seconds:
         description: Video duration in seconds
         required: true
-        default: "36"
+        default: "60"
         type: string
 permissions:
   contents: read
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -25,16 +25,20 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg espeak-ng
-      - name: Install Python dependencies
+      - name: Install geographic rendering dependencies
         run: pip install -r requirements.txt
-      - name: Render
+      - name: Render 60-second documentary
         run: |
           python render_geo_doc.py \
-            --output output/suez-canal-documentary.mp4 \
-            --seconds "${{ inputs.seconds || '36' }}"
+            --output output/suez-canal-documentary-v2.mp4 \
+            --seconds "${{ inputs.seconds || '60' }}"
+      - name: Validate MP4
+        run: |
+          test -s output/suez-canal-documentary-v2.mp4
+          ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 output/suez-canal-documentary-v2.mp4
       - uses: actions/upload-artifact@v4
         with:
-          name: geo-motion-suez-canal-prototype
-          path: output/suez-canal-documentary.mp4
+          name: geo-motion-suez-canal-v2
+          path: output/suez-canal-documentary-v2.mp4
           if-no-files-found: error
           retention-days: 14
