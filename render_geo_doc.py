@@ -40,11 +40,9 @@ def polygons(g):
   return [p for q in g.geoms for p in polygons(q)]
  return []
 def draw_gradient(im):
- px=im.load()
- for y in range(H):
-  t=y/H
-  c=(int(5+3*t),int(21+10*t),int(39+15*t))
-  for x in range(W): px[x,y]=c
+ strip=Image.new("RGB",(1,H))
+ strip.putdata([(int(5+3*y/H),int(21+10*y/H),int(39+15*y/H)) for y in range(H)])
+ im.paste(strip.resize((W,H)),(0,0))
 def render_frame(land,scene,scene_idx,local_t,total_t):
  bbox=scene["box"]; tr,xy=project_factory(bbox,scene["focus"])
  im=Image.new("RGB",(W,H)); draw_gradient(im); d=ImageDraw.Draw(im,"RGBA")
